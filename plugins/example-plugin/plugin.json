@@ -1,0 +1,31 @@
+{
+    "name": "example-plugin",
+    "version": "1.0.0",
+    "description": "A simple example plugin for demonstration",
+    "author": "Demo Author",
+    "enabled": true,
+    "service_provider": "Plugins\\ExamplePlugin\\ExamplePluginServiceProvider",
+    "dependencies": [],
+    "requires": {
+        "php": ">=8.0",
+        "laravel": ">=9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Plugins\\ExamplePlugin\\": "src/"
+        }
+    },
+    "config": {
+        "feature_enabled": true,
+        "max_items": 10,
+        "theme": "default"
+    },
+    "permissions": [
+        "view_example_plugin",
+        "manage_example_plugin"
+    ],
+    "hooks": [
+        "content.before_render",
+        "user.after_login"
+    ]
+}

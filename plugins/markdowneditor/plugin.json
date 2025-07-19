@@ -1,0 +1,31 @@
+{
+    "name": "markdowneditor",
+    "version": "1.0.0",
+    "description": "Markdown editor plugin for customer portal",
+    "author": "Your Name",
+    "enabled": true,
+    "service_provider": "Plugins\\MarkdownEditor\\MarkdownEditorServiceProvider",
+    "dependencies": [],
+    "requires": {
+        "php": ">=8.0",
+        "laravel": ">=9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Plugins\\MarkdownEditor\\": "src/"
+        }
+    },
+    "config": {
+        "editor_theme": "default",
+        "auto_save": true,
+        "spell_check": false
+    },
+    "permissions": [
+        "view_markdown_editor",
+        "edit_markdown_content"
+    ],
+    "hooks": [
+        "content.before_render",
+        "content.after_save"
+    ]
+}

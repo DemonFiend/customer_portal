@@ -139,26 +139,35 @@ return [
     |
     */
 
-    'providers' => ServiceProvider::defaultProviders()->merge([
+    'providers' => [
+        // Default Laravel Providers (usually Laravel auto-loads these, but list here if you want explicit control)
+        // You can get this list from Laravel docs or your ServiceProvider::defaultProviders() if you want full coverage.
+
         Laravel\Tinker\TinkerServiceProvider::class,
 
         /*
-         * Application Service Providers...
-         */
+     * Application Service Providers...
+     */
         App\Providers\AppServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+        // App\Providers\BroadcastServiceProvider::class,  // commented out in your snippet
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+
         /** Custom */
         App\Providers\FormattingServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
         \App\Providers\LanguageServiceProvider::class,
+        App\Providers\PluginServiceProvider::class,
+
         /** Vendors */
         Collective\Html\HtmlServiceProvider::class,
         Proengsoft\JsValidation\JsValidationServiceProvider::class,
         Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
-    ])->toArray(),
+
+        /** Plugin Provider - */
+        Plugins\MarkdownEditor\MarkdownEditorServiceProvider::class,
+    ],
 
     /*
     |--------------------------------------------------------------------------
