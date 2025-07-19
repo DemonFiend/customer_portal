@@ -163,7 +163,7 @@ return [
         /** Vendors */
         Collective\Html\HtmlServiceProvider::class,
         // Proengsoft\JsValidation\JsValidationServiceProvider::class,
-        Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
+        // Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
 
         /** Plugin Provider - */
         // Plugins\MarkdownEditor\MarkdownEditorServiceProvider::class,
@@ -187,7 +187,7 @@ return [
         /* Vendors */
         'Form' => Collective\Html\FormFacade::class,
         'Html' => Collective\Html\HtmlFacade::class,
-        'JsValidator' => Proengsoft\JsValidation\Facades\JsValidatorFacade::class,
+        // 'JsValidator' => Proengsoft\JsValidation\Facades\JsValidatorFacade::class,
     ])->toArray(),
 
 ];
