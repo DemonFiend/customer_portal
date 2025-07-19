@@ -155,9 +155,9 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         /** Custom */
-        App\Providers\FormattingServiceProvider::class,
-        App\Providers\ComposerServiceProvider::class,
-        \App\Providers\LanguageServiceProvider::class,
+        // App\Providers\FormattingServiceProvider::class,
+        // App\Providers\ComposerServiceProvider::class,
+        // \App\Providers\LanguageServiceProvider::class,
         // App\Providers\PluginServiceProvider::class,
 
         /** Vendors */
@@ -183,7 +183,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'Redis' => Illuminate\Support\Facades\Redis::class,
         /* Custom */
-        'Formatter' => App\Facades\Formatter::class,
+        // 'Formatter' => App\Facades\Formatter::class,
         /* Vendors */
         // 'Form' => Collective\Html\FormFacade::class,
         // 'Html' => Collective\Html\HtmlFacade::class,
