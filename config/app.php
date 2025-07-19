@@ -148,11 +148,11 @@ return [
         /*
      * Application Service Providers...
      */
-        App\Providers\AppServiceProvider::class,
+        // App\Providers\AppServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,  // commented out in your snippet
-        App\Providers\AuthServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
+        // App\Providers\AuthServiceProvider::class,
+        // App\Providers\EventServiceProvider::class,
+        // App\Providers\RouteServiceProvider::class,
 
         /** Custom */
         // App\Providers\FormattingServiceProvider::class,
