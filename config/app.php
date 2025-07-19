@@ -166,7 +166,7 @@ return [
         Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
 
         /** Plugin Provider - */
-        Plugins\MarkdownEditor\MarkdownEditorServiceProvider::class,
+        // Plugins\MarkdownEditor\MarkdownEditorServiceProvider::class,
     ],
 
     /*
