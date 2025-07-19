@@ -158,7 +158,7 @@ return [
         App\Providers\FormattingServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
         \App\Providers\LanguageServiceProvider::class,
-        App\Providers\PluginServiceProvider::class,
+        // App\Providers\PluginServiceProvider::class,
 
         /** Vendors */
         Collective\Html\HtmlServiceProvider::class,
