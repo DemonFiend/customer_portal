@@ -162,7 +162,7 @@ return [
 
         /** Vendors */
         Collective\Html\HtmlServiceProvider::class,
-        Proengsoft\JsValidation\JsValidationServiceProvider::class,
+        // Proengsoft\JsValidation\JsValidationServiceProvider::class,
         Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
 
         /** Plugin Provider - */
