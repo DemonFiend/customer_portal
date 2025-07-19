@@ -143,7 +143,7 @@ return [
         // Default Laravel Providers (usually Laravel auto-loads these, but list here if you want explicit control)
         // You can get this list from Laravel docs or your ServiceProvider::defaultProviders() if you want full coverage.
 
-        Laravel\Tinker\TinkerServiceProvider::class,
+        // Laravel\Tinker\TinkerServiceProvider::class,
 
         /*
      * Application Service Providers...
