@@ -161,7 +161,7 @@ return [
         // App\Providers\PluginServiceProvider::class,
 
         /** Vendors */
-        Collective\Html\HtmlServiceProvider::class,
+        // Collective\Html\HtmlServiceProvider::class,
         // Proengsoft\JsValidation\JsValidationServiceProvider::class,
         // Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
 
@@ -185,8 +185,8 @@ return [
         /* Custom */
         'Formatter' => App\Facades\Formatter::class,
         /* Vendors */
-        'Form' => Collective\Html\FormFacade::class,
-        'Html' => Collective\Html\HtmlFacade::class,
+        // 'Form' => Collective\Html\FormFacade::class,
+        // 'Html' => Collective\Html\HtmlFacade::class,
         // 'JsValidator' => Proengsoft\JsValidation\Facades\JsValidatorFacade::class,
     ])->toArray(),
 
