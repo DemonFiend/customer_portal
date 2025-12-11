@@ -96,7 +96,14 @@
                 document.documentElement.setAttribute('data-theme', 'dark');
             }
         })
-        .catch(error => console.error('Error loading theme preference:', error));
+        .catch(error => {
+            console.error('Error loading theme preference:', error);
+            // Show user-facing error
+            const themeStatus = document.getElementById('themeStatus');
+            if (themeStatus) {
+                themeStatus.innerHTML = '<small class="text-danger"><i class="fe fe-alert-triangle"></i> Failed to load theme preference</small>';
+            }
+        });
     });
 
     function toggleDarkMode() {
@@ -134,6 +141,19 @@
         .catch(error => {
             console.error('Error toggling theme:', error);
             toggle.checked = !toggle.checked; // Revert on error
+            
+            // Show user-facing error
+            const themeStatus = document.getElementById('themeStatus');
+            if (themeStatus) {
+                themeStatus.innerHTML = '<small class="text-danger"><i class="fe fe-alert-triangle"></i> Failed to toggle theme. Please try again.</small>';
+                
+                // Reset to normal after 3 seconds
+                setTimeout(() => {
+                    const isDark = toggle.checked;
+                    currentTheme.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+                    themeStatus.innerHTML = '<small class="text-muted"><i class="fe fe-' + (isDark ? 'moon' : 'sun') + '"></i> Currently using <strong id="currentTheme">' + currentTheme.textContent + '</strong></small>';
+                }, 3000);
+            }
         });
     }
 </script>

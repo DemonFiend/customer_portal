@@ -103,7 +103,7 @@
                                 </label>
                                 <input type="text" class="form-control form-control-lg" id="name" name="name" 
                                        placeholder="e.g., My Custom Plugin" 
-                                       pattern="[a-zA-Z0-9\s]+" 
+                                       pattern="^[a-zA-Z0-9\s]+$" 
                                        title="Plugin name can only contain letters, numbers, and spaces"
                                        required>
                                 <small class="form-text text-muted">

@@ -91,16 +91,31 @@ class ThemeAdminController extends Controller
         try {
             $pluginConfigPath = base_path('plugins/theme-customizer/plugin.json');
             
-            // Backup current config
-            if (file_exists($pluginConfigPath)) {
-                $backupPath = $pluginConfigPath . '.backup';
-                copy($pluginConfigPath, $backupPath);
+            // Check if file exists
+            if (!file_exists($pluginConfigPath)) {
+                throw new \Exception('Plugin configuration file not found');
             }
 
-            $config = json_decode(file_get_contents($pluginConfigPath), true);
+            // Check if file is readable
+            if (!is_readable($pluginConfigPath)) {
+                throw new \Exception('Plugin configuration file is not readable');
+            }
 
-            if (!$config) {
-                throw new \Exception('Invalid plugin configuration');
+            // Backup current config
+            $backupPath = $pluginConfigPath . '.backup';
+            if (!copy($pluginConfigPath, $backupPath)) {
+                throw new \Exception('Failed to create configuration backup');
+            }
+
+            $configContent = file_get_contents($pluginConfigPath);
+            if ($configContent === false) {
+                throw new \Exception('Failed to read plugin configuration');
+            }
+
+            $config = json_decode($configContent, true);
+
+            if (!$config || json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Invalid plugin configuration: ' . json_last_error_msg());
             }
 
             $config['config']['dark_mode_enabled'] = $this->checkboxToBoolean($request->input('dark_mode_enabled', false));
@@ -191,8 +206,8 @@ class ThemeAdminController extends Controller
                 'artisan',
                 'make:plugin',
                 $pluginName,
-                '--author=' . $author,
-                '--description=' . $description
+                '--author=' . escapeshellarg($author),
+                '--description=' . escapeshellarg($description)
             ], base_path(), null, null, 300); // 5 minute timeout
 
             $process->run();

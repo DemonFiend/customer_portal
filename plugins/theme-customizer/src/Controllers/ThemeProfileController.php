@@ -14,7 +14,16 @@ class ThemeProfileController extends Controller
      */
     public function toggleDarkMode(Request $request): JsonResponse
     {
-        $contactId = auth()->user()->contact_id;
+        $user = auth()->user();
+        
+        if (!$user || !isset($user->contact_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+
+        $contactId = $user->contact_id;
         $darkMode = UserThemePreference::toggleDarkMode($contactId);
 
         return response()->json([
@@ -29,7 +38,17 @@ class ThemeProfileController extends Controller
      */
     public function getThemePreference(Request $request): JsonResponse
     {
-        $contactId = auth()->user()->contact_id;
+        $user = auth()->user();
+        
+        if (!$user || !isset($user->contact_id)) {
+            return response()->json([
+                'success' => false,
+                'dark_mode' => false,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+
+        $contactId = $user->contact_id;
         $preference = UserThemePreference::getForUser($contactId);
 
         return response()->json([
