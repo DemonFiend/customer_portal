@@ -17,8 +17,6 @@ return new class extends Migration
                 $table->unsignedBigInteger('contact_id')->unique();
                 $table->boolean('dark_mode')->default(false);
                 $table->timestamps();
-                
-                $table->index('contact_id');
             });
         }
     }

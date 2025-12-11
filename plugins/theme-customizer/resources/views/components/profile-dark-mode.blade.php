@@ -98,10 +98,20 @@
         })
         .catch(error => {
             console.error('Error loading theme preference:', error);
-            // Show user-facing error
+            // Show user-facing error (safe DOM manipulation)
             const themeStatus = document.getElementById('themeStatus');
             if (themeStatus) {
-                themeStatus.innerHTML = '<small class="text-danger"><i class="fe fe-alert-triangle"></i> Failed to load theme preference</small>';
+                themeStatus.textContent = '';
+                
+                const small = document.createElement('small');
+                small.className = 'text-danger';
+                
+                const icon = document.createElement('i');
+                icon.className = 'fe fe-alert-triangle';
+                
+                small.appendChild(icon);
+                small.appendChild(document.createTextNode(' Failed to load theme preference'));
+                themeStatus.appendChild(small);
             }
         });
     });

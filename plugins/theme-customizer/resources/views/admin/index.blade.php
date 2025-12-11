@@ -339,19 +339,34 @@
             html.setAttribute('data-theme', 'dark');
             previewToggle.checked = true;
             previewLabel.textContent = 'Dark Mode';
-            themeStatus.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+            // Safe DOM manipulation
+            themeStatus.textContent = '';
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-moon';
+            themeStatus.appendChild(icon);
+            themeStatus.appendChild(document.createTextNode(' Dark Mode'));
         }
 
         previewToggle.addEventListener('change', function() {
             if (this.checked) {
                 html.setAttribute('data-theme', 'dark');
                 previewLabel.textContent = 'Dark Mode';
-                themeStatus.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+                // Safe DOM manipulation
+                themeStatus.textContent = '';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-moon';
+                themeStatus.appendChild(icon);
+                themeStatus.appendChild(document.createTextNode(' Dark Mode'));
                 localStorage.setItem('theme', 'dark');
             } else {
                 html.setAttribute('data-theme', 'light');
                 previewLabel.textContent = 'Light Mode';
-                themeStatus.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+                // Safe DOM manipulation
+                themeStatus.textContent = '';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-sun';
+                themeStatus.appendChild(icon);
+                themeStatus.appendChild(document.createTextNode(' Light Mode'));
                 localStorage.setItem('theme', 'light');
             }
         });
