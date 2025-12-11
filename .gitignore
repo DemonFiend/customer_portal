@@ -10,3 +10,10 @@ storage/database.sqlite
 
 /.phpunit.cache
 /nbproject/private/
+
+# Plugin system
+/public/plugins/*/
+/bootstrap/cache/plugins.php
+/storage/plugins/
+*.plugin.cache
+
