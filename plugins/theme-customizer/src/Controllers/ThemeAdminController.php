@@ -8,6 +8,7 @@ use App\Traits\Throttles;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Symfony\Component\Process\Process;
 
 class ThemeAdminController extends Controller
 {
@@ -201,11 +202,11 @@ class ThemeAdminController extends Controller
             $pluginName = str_replace(' ', '', ucwords($name));
             
             // Use Symfony Process for secure command execution
-            $process = new \Symfony\Component\Process\Process([
+            $process = new Process([
                 'php',
                 'artisan',
                 'make:plugin',
-                $pluginName,
+                escapeshellarg($pluginName),
                 '--author=' . escapeshellarg($author),
                 '--description=' . escapeshellarg($description)
             ], base_path(), null, null, 300); // 5 minute timeout
@@ -217,7 +218,7 @@ class ThemeAdminController extends Controller
             }
 
             // Run composer dump-autoload
-            $autoloadProcess = new \Symfony\Component\Process\Process([
+            $autoloadProcess = new Process([
                 'composer',
                 'dump-autoload'
             ], base_path(), null, null, 300);
@@ -245,7 +246,7 @@ class ThemeAdminController extends Controller
 
         try {
             // Restart docker container using Symfony Process
-            $process = new \Symfony\Component\Process\Process([
+            $process = new Process([
                 'docker-compose',
                 'restart',
                 'app'
@@ -255,7 +256,7 @@ class ThemeAdminController extends Controller
 
             // If first attempt fails, try restarting all containers
             if (!$process->isSuccessful()) {
-                $fallbackProcess = new \Symfony\Component\Process\Process([
+                $fallbackProcess = new Process([
                     'docker-compose',
                     'restart'
                 ], base_path(), null, null, 60);
