@@ -142,16 +142,42 @@
             console.error('Error toggling theme:', error);
             toggle.checked = !toggle.checked; // Revert on error
             
-            // Show user-facing error
+            // Show user-facing error (safe text-only update)
             const themeStatus = document.getElementById('themeStatus');
             if (themeStatus) {
-                themeStatus.innerHTML = '<small class="text-danger"><i class="fe fe-alert-triangle"></i> Failed to toggle theme. Please try again.</small>';
+                // Clear and rebuild safely
+                themeStatus.textContent = '';
+                
+                const small = document.createElement('small');
+                small.className = 'text-danger';
+                
+                const icon = document.createElement('i');
+                icon.className = 'fe fe-alert-triangle';
+                
+                small.appendChild(icon);
+                small.appendChild(document.createTextNode(' Failed to toggle theme. Please try again.'));
+                themeStatus.appendChild(small);
                 
                 // Reset to normal after 3 seconds
                 setTimeout(() => {
                     const isDark = toggle.checked;
-                    currentTheme.textContent = isDark ? 'Dark Mode' : 'Light Mode';
-                    themeStatus.innerHTML = '<small class="text-muted"><i class="fe fe-' + (isDark ? 'moon' : 'sun') + '"></i> Currently using <strong id="currentTheme">' + currentTheme.textContent + '</strong></small>';
+                    themeStatus.textContent = '';
+                    
+                    const resetSmall = document.createElement('small');
+                    resetSmall.className = 'text-muted';
+                    
+                    const resetIcon = document.createElement('i');
+                    resetIcon.className = 'fe fe-' + (isDark ? 'moon' : 'sun');
+                    
+                    resetSmall.appendChild(resetIcon);
+                    resetSmall.appendChild(document.createTextNode(' Currently using '));
+                    
+                    const strong = document.createElement('strong');
+                    strong.id = 'currentTheme';
+                    strong.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+                    
+                    resetSmall.appendChild(strong);
+                    themeStatus.appendChild(resetSmall);
                 }, 3000);
             }
         });

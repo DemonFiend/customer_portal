@@ -158,10 +158,22 @@ class ThemeAdminController extends Controller
     protected function getPluginConfig(): array
     {
         $pluginConfigPath = base_path('plugins/theme-customizer/plugin.json');
-        if (file_exists($pluginConfigPath)) {
-            return json_decode(file_get_contents($pluginConfigPath), true)['config'] ?? [];
+        
+        if (!file_exists($pluginConfigPath)) {
+            return [];
         }
-        return [];
+        
+        $content = file_get_contents($pluginConfigPath);
+        if ($content === false) {
+            return [];
+        }
+        
+        $config = json_decode($content, true);
+        if (!is_array($config) || !isset($config['config'])) {
+            return [];
+        }
+        
+        return $config['config'];
     }
 
     /**
@@ -206,9 +218,9 @@ class ThemeAdminController extends Controller
                 'php',
                 'artisan',
                 'make:plugin',
-                escapeshellarg($pluginName),
-                '--author=' . escapeshellarg($author),
-                '--description=' . escapeshellarg($description)
+                $pluginName,
+                '--author=' . $author,
+                '--description=' . $description
             ], base_path(), null, null, 300); // 5 minute timeout
 
             $process->run();
