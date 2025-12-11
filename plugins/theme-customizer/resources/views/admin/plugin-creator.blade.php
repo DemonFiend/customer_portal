@@ -107,7 +107,7 @@
                                        title="Plugin name can only contain letters, numbers, and spaces"
                                        required>
                                 <small class="form-text text-muted">
-                                    The name will be converted to PascalCase for the class name. Only letters, numbers, and spaces allowed.
+                                    The name will be converted to PascalCase for the class name (spaces will be removed). Only letters, numbers, and spaces allowed.
                                 </small>
                             </div>
 

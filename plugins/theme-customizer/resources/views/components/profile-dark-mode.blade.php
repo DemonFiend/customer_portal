@@ -15,7 +15,7 @@
             </div>
             <div>
                 <label class="theme-toggle-switch">
-                    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                    <input type="checkbox" id="darkModeToggle">
                     <span class="slider-round"></span>
                 </label>
             </div>
@@ -78,6 +78,14 @@
 <script>
     // Load current theme preference
     document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('darkModeToggle');
+        const currentTheme = document.getElementById('currentTheme');
+        
+        // Add event listener for toggle
+        if (toggle) {
+            toggle.addEventListener('change', toggleDarkMode);
+        }
+        
         fetch('/portal/theme/preference', {
             method: 'GET',
             headers: {

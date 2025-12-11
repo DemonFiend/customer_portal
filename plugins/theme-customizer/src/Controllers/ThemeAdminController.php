@@ -198,9 +198,9 @@ class ThemeAdminController extends Controller
         }
 
         $request->validate([
-            'name' => 'required|string|max:255|regex:/^[a-zA-Z0-9\s]+$/',
-            'author' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s]+$/'],
+            'author' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\-\.]+$/'],
+            'description' => ['nullable', 'string', 'max:1000'],
             'restart_after' => 'nullable|boolean',
         ]);
 
@@ -210,8 +210,12 @@ class ThemeAdminController extends Controller
             $description = $request->input('description', 'A custom plugin for the customer portal');
             $restartAfter = $request->input('restart_after', false);
 
-            // Generate plugin using artisan command via Symfony Process
+            // Generate plugin name (spaces will be removed, documented behavior)
             $pluginName = str_replace(' ', '', ucwords($name));
+            
+            // Sanitize inputs: remove any problematic characters
+            $author = preg_replace('/["\';\\\\]/', '', $author);
+            $description = preg_replace('/["\';\\\\]/', '', $description);
             
             // Use Symfony Process for secure command execution
             $process = new Process([
