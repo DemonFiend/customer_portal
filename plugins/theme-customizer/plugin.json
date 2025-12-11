@@ -1,7 +1,7 @@
 {
     "name": "theme-customizer",
-    "version": "1.0.0",
-    "description": "Example plugin demonstrating theme and UI customization capabilities",
+    "version": "2.0.0",
+    "description": "Theme customization plugin with dark/light mode support",
     "author": "Customer Portal Team",
     "enabled": true,
     "service_provider": "Plugins\\ThemeCustomizer\\ThemeCustomizerServiceProvider",
@@ -21,7 +21,9 @@
         "custom_logo_url": "",
         "custom_css_enabled": true,
         "footer_text": "Powered by Your Company",
-        "show_custom_header": true
+        "show_custom_header": true,
+        "dark_mode_enabled": true,
+        "dark_mode_default": false
     },
     "permissions": [],
     "hooks": [
