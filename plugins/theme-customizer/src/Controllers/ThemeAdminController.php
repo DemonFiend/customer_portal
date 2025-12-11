@@ -88,15 +88,52 @@ class ThemeAdminController extends Controller
             'dark_mode_default' => 'nullable|boolean',
         ]);
 
-        $pluginConfigPath = base_path('plugins/theme-customizer/plugin.json');
-        $config = json_decode(file_get_contents($pluginConfigPath), true);
+        try {
+            $pluginConfigPath = base_path('plugins/theme-customizer/plugin.json');
+            
+            // Backup current config
+            if (file_exists($pluginConfigPath)) {
+                $backupPath = $pluginConfigPath . '.backup';
+                copy($pluginConfigPath, $backupPath);
+            }
 
-        $config['config']['dark_mode_enabled'] = $request->input('dark_mode_enabled', false) === 'on' || $request->input('dark_mode_enabled') === true;
-        $config['config']['dark_mode_default'] = $request->input('dark_mode_default', false) === 'on' || $request->input('dark_mode_default') === true;
+            $config = json_decode(file_get_contents($pluginConfigPath), true);
 
-        file_put_contents($pluginConfigPath, json_encode($config, JSON_PRETTY_PRINT));
+            if (!$config) {
+                throw new \Exception('Invalid plugin configuration');
+            }
 
-        return redirect('/admin')->with('success', 'Theme settings updated successfully.');
+            $config['config']['dark_mode_enabled'] = $this->checkboxToBoolean($request->input('dark_mode_enabled', false));
+            $config['config']['dark_mode_default'] = $this->checkboxToBoolean($request->input('dark_mode_default', false));
+
+            // Write with atomic operation
+            $tempPath = $pluginConfigPath . '.tmp';
+            $result = file_put_contents($tempPath, json_encode($config, JSON_PRETTY_PRINT));
+
+            if ($result === false) {
+                throw new \Exception('Failed to write configuration');
+            }
+
+            // Atomic rename
+            if (!rename($tempPath, $pluginConfigPath)) {
+                throw new \Exception('Failed to update configuration');
+            }
+
+            // Remove backup on success
+            if (isset($backupPath) && file_exists($backupPath)) {
+                unlink($backupPath);
+            }
+
+            return redirect('/admin')->with('success', 'Theme settings updated successfully.');
+        } catch (\Exception $e) {
+            // Restore from backup on error
+            if (isset($backupPath) && file_exists($backupPath)) {
+                copy($backupPath, $pluginConfigPath);
+                unlink($backupPath);
+            }
+            
+            return redirect('/admin')->withErrors('Failed to update settings: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -133,7 +170,7 @@ class ThemeAdminController extends Controller
         }
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[a-zA-Z0-9\s]+$/',
             'author' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'restart_after' => 'nullable|boolean',
@@ -145,22 +182,32 @@ class ThemeAdminController extends Controller
             $description = $request->input('description', 'A custom plugin for the customer portal');
             $restartAfter = $request->input('restart_after', false);
 
-            // Generate plugin using artisan command
+            // Generate plugin using artisan command via Symfony Process
             $pluginName = str_replace(' ', '', ucwords($name));
             
-            $command = sprintf(
-                'cd %s && php artisan make:plugin "%s" --author="%s" --description="%s" 2>&1',
-                base_path(),
-                addslashes($pluginName),
-                addslashes($author),
-                addslashes($description)
-            );
+            // Use Symfony Process for secure command execution
+            $process = new \Symfony\Component\Process\Process([
+                'php',
+                'artisan',
+                'make:plugin',
+                $pluginName,
+                '--author=' . $author,
+                '--description=' . $description
+            ], base_path(), null, null, 300); // 5 minute timeout
 
-            $output = shell_exec($command);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                return redirect('/admin')->withErrors('Failed to create plugin: ' . $process->getErrorOutput());
+            }
 
             // Run composer dump-autoload
-            $autoloadCommand = sprintf('cd %s && composer dump-autoload 2>&1', base_path());
-            $autoloadOutput = shell_exec($autoloadCommand);
+            $autoloadProcess = new \Symfony\Component\Process\Process([
+                'composer',
+                'dump-autoload'
+            ], base_path(), null, null, 300);
+
+            $autoloadProcess->run();
 
             if ($restartAfter) {
                 return redirect('/admin')->with('success', 'Plugin created successfully! Server will restart shortly. Please refresh your page in 1-2 minutes.');
@@ -182,19 +229,40 @@ class ThemeAdminController extends Controller
         }
 
         try {
-            // Restart docker container
-            $command = 'docker-compose restart app 2>&1';
-            $output = shell_exec($command);
+            // Restart docker container using Symfony Process
+            $process = new \Symfony\Component\Process\Process([
+                'docker-compose',
+                'restart',
+                'app'
+            ], base_path(), null, null, 60);
 
-            // Alternative: restart all containers
-            if (empty($output) || strpos($output, 'error') !== false) {
-                $command = 'docker-compose restart 2>&1';
-                shell_exec($command);
+            $process->run();
+
+            // If first attempt fails, try restarting all containers
+            if (!$process->isSuccessful()) {
+                $fallbackProcess = new \Symfony\Component\Process\Process([
+                    'docker-compose',
+                    'restart'
+                ], base_path(), null, null, 60);
+
+                $fallbackProcess->run();
+
+                if (!$fallbackProcess->isSuccessful()) {
+                    return redirect('/admin')->withErrors('Failed to restart server: ' . $fallbackProcess->getErrorOutput());
+                }
             }
 
             return redirect('/admin')->with('restart', 'Server restart initiated! Please refresh this page in 1-2 minutes.');
         } catch (\Exception $e) {
             return redirect('/admin')->withErrors('Failed to restart server: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Helper: Convert checkbox value to boolean
+     */
+    protected function checkboxToBoolean($value): bool
+    {
+        return $value === 'on' || $value === true || $value === '1';
     }
 }

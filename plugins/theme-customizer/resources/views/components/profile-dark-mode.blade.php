@@ -102,12 +102,19 @@
     function toggleDarkMode() {
         const toggle = document.getElementById('darkModeToggle');
         const currentTheme = document.getElementById('currentTheme');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            toggle.checked = !toggle.checked;
+            return;
+        }
         
         fetch('/portal/theme/toggle', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
             }
