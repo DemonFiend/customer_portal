@@ -19,6 +19,11 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
     protected const ALLOWED_COLOR_KEYS = ['primary', 'secondary'];
 
     /**
+     * Cached theme configuration
+     */
+    protected ?array $cachedThemeConfig = null;
+
+    /**
      * Boot the plugin
      */
     protected function bootPlugin(): void
@@ -57,11 +62,16 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
 
         $hooks = app('plugin.hooks');
 
-        // Add custom CSS to all rendered content
-        $hooks->addFilter('content.render', function ($content) {
+        // Cache generated CSS to avoid regenerating on every render
+        $cachedCss = null;
+
+        // Add custom CSS to all rendered content (cached)
+        $hooks->addFilter('content.render', function ($content) use (&$cachedCss) {
             if ($this->isCustomCssEnabled()) {
-                $customCss = $this->generateCustomCss();
-                $content = "<style>{$customCss}</style>\n" . $content;
+                if ($cachedCss === null) {
+                    $cachedCss = $this->generateCustomCss();
+                }
+                $content = "<style>{$cachedCss}</style>\n" . $content;
             }
             return $content;
         }, 10);
@@ -84,15 +94,20 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
      */
     protected function registerViewComposers(): void
     {
-        // Share theme configuration with all views
-        View::composer('*', function ($view) {
-            $view->with('themeConfig', [
+        // Cache theme configuration to avoid repeated getConfig calls
+        if ($this->cachedThemeConfig === null) {
+            $this->cachedThemeConfig = [
                 'primaryColor' => $this->getConfig('primary_color', '#007bff'),
                 'secondaryColor' => $this->getConfig('secondary_color', '#6c757d'),
                 'customLogoUrl' => $this->getConfig('custom_logo_url', ''),
                 'showCustomHeader' => $this->getConfig('show_custom_header', true),
                 'footerText' => $this->getConfig('footer_text', ''),
-            ]);
+            ];
+        }
+
+        // Share theme configuration with layout views only (not all views)
+        View::composer(['layouts.*', 'components.*'], function ($view) {
+            $view->with('themeConfig', $this->cachedThemeConfig);
         });
     }
 
@@ -103,18 +118,23 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
     {
         // @themeColor('primary') - Get theme color
         Blade::directive('themeColor', function ($expression) {
-            // Validate expression to only allow specific color keys
-            $key = trim($expression, "'\"");
+            // Safely extract and validate the color key
+            // Only allow single-quoted or double-quoted strings
+            if (!preg_match("/^['\"]([a-z]+)['\"]$/", $expression, $matches)) {
+                return "<?php echo '#000'; ?>";
+            }
             
-            return "<?php 
-                \$key = " . var_export($key, true) . ";
-                \$allowed = " . var_export(self::ALLOWED_COLOR_KEYS, true) . ";
-                if (in_array(\$key, \$allowed)) {
-                    echo config('theme.config.' . \$key . '_color', '#000');
-                } else {
-                    echo '#000';
-                }
-            ?>";
+            $key = $matches[1];
+            $allowedKeys = self::ALLOWED_COLOR_KEYS;
+            
+            // Only proceed if key is in allowed list
+            if (!in_array($key, $allowedKeys, true)) {
+                return "<?php echo '#000'; ?>";
+            }
+            
+            // Now safe to use in config key
+            $configKey = var_export("theme.config.{$key}_color", true);
+            return "<?php echo config({$configKey}, '#000'); ?>";
         });
 
         // @themeLogo - Display custom logo if set (with XSS protection)
@@ -188,9 +208,27 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
             return $color;
         }
         
-        // Validate rgb/rgba format
-        if (preg_match('/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/', $color)) {
-            return $color;
+        // Validate rgb/rgba format with proper value ranges
+        if (preg_match('/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/', $color, $matches)) {
+            // Validate RGB values are 0-255
+            $r = (int)$matches[1];
+            $g = (int)$matches[2];
+            $b = (int)$matches[3];
+            
+            if ($r > 255 || $g > 255 || $b > 255) {
+                return '#000000';
+            }
+            
+            // Validate alpha if present (0-1)
+            if (isset($matches[4])) {
+                $alpha = (float)$matches[4];
+                if ($alpha < 0 || $alpha > 1) {
+                    return '#000000';
+                }
+                return "rgba({$r}, {$g}, {$b}, {$alpha})";
+            }
+            
+            return "rgb({$r}, {$g}, {$b})";
         }
         
         // If invalid, return safe default
