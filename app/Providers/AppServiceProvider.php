@@ -74,6 +74,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register the plugin hook manager as a singleton
+        $this->app->singleton('plugin.hooks', function ($app) {
+            return new \App\Services\PluginHookManager();
+        });
     }
 }

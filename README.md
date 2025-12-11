@@ -95,4 +95,35 @@ Try removing the created storage volume by executing `sudo docker volume rm cust
 
 ## Customizing the portal
 
-This portal is built using [Laravel](https://laravel.com/). You are welcome to fork and modify this repository for your own needs! Do not attempt to customize the files inside the existing Docker container, as they will be automatically overwritten during upgrade. If you need help customizing this portal beyond what is currently available, we recommend [Solutions4Ebiz](https://www.solutions4ebiz.com/) & [SBRConsulting](https://www.sbrconsulting-llc.com/) as experienced third party developers.
+This portal is built using [Laravel](https://laravel.com/) and includes a comprehensive **plugin system** for easy customization.
+
+### Plugin System
+
+The customer portal features a powerful plugin system that allows you to:
+- **Customize themes and UI** without modifying core files
+- **Add new features** through modular plugins
+- **Extend functionality** using hooks and filters
+- **Create custom integrations** with third-party services
+
+**Quick Start:**
+```bash
+# Generate a new plugin
+php artisan make:plugin "MyPlugin" --author="Your Name"
+
+# Your plugin is created in plugins/my-plugin/
+```
+
+**Documentation:**
+- **[Quick Start Guide](PLUGIN_QUICK_START.md)** - Get started in 5 minutes
+- **[Complete Plugin Guide](PLUGIN_SYSTEM_GUIDE.md)** - Comprehensive documentation
+- **[Hooks Reference](HOOKS_REFERENCE.md)** - All available hooks and filters
+- **Example Plugins:**
+  - `plugins/example-plugin/` - Basic plugin example
+  - `plugins/theme-customizer/` - Theme customization example
+  - `plugins/markdowneditor/` - Real-world plugin
+
+### Advanced Customization
+
+You are welcome to fork and modify this repository for your own needs! Do not attempt to customize the files inside the existing Docker container, as they will be automatically overwritten during upgrade. 
+
+For professional customization help, we recommend [Solutions4Ebiz](https://www.solutions4ebiz.com/) & [SBRConsulting](https://www.sbrconsulting-llc.com/) as experienced third party developers.

@@ -1,0 +1,31 @@
+{
+    "name": "theme-customizer",
+    "version": "1.0.0",
+    "description": "Example plugin demonstrating theme and UI customization capabilities",
+    "author": "Customer Portal Team",
+    "enabled": true,
+    "service_provider": "Plugins\\ThemeCustomizer\\ThemeCustomizerServiceProvider",
+    "dependencies": [],
+    "requires": {
+        "php": ">=8.0",
+        "laravel": ">=10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Plugins\\ThemeCustomizer\\": "src/"
+        }
+    },
+    "config": {
+        "primary_color": "#007bff",
+        "secondary_color": "#6c757d",
+        "custom_logo_url": "",
+        "custom_css_enabled": true,
+        "footer_text": "Powered by Your Company",
+        "show_custom_header": true
+    },
+    "permissions": [],
+    "hooks": [
+        "content.render",
+        "menu.items"
+    ]
+}
