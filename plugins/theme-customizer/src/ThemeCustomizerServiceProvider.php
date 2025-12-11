@@ -98,15 +98,27 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
     {
         // @themeColor('primary') - Get theme color
         Blade::directive('themeColor', function ($expression) {
-            return "<?php echo config('theme.config.{$expression}_color', '#000'); ?>";
+            // Validate expression to only allow specific color keys
+            $allowed = ['primary', 'secondary'];
+            $key = trim($expression, "'\"");
+            
+            return "<?php 
+                \$key = " . var_export($key, true) . ";
+                \$allowed = ['primary', 'secondary'];
+                if (in_array(\$key, \$allowed)) {
+                    echo config('theme.config.' . \$key . '_color', '#000');
+                } else {
+                    echo '#000';
+                }
+            ?>";
         });
 
-        // @themeLogo - Display custom logo if set
+        // @themeLogo - Display custom logo if set (with XSS protection)
         Blade::directive('themeLogo', function () {
             return "<?php 
                 \$logoUrl = config('theme.config.custom_logo_url', '');
                 if (\$logoUrl) {
-                    echo '<img src=\"' . \$logoUrl . '\" alt=\"Logo\" class=\"custom-logo\">';
+                    echo '<img src=\"' . e(\$logoUrl) . '\" alt=\"Logo\" class=\"custom-logo\">';
                 }
             ?>";
         });
@@ -132,8 +144,7 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
             }
             
             .btn-primary:hover {
-                background-color: color-mix(in srgb, var(--primary-color) 85%, black) !important;
-                border-color: color-mix(in srgb, var(--primary-color) 85%, black) !important;
+                filter: brightness(0.85);
             }
             
             .navbar-brand, .nav-link.active {
