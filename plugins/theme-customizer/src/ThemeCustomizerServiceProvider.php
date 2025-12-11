@@ -14,6 +14,11 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
     protected string $pluginName = 'theme-customizer';
 
     /**
+     * Allowed theme color keys
+     */
+    protected const ALLOWED_COLOR_KEYS = ['primary', 'secondary'];
+
+    /**
      * Boot the plugin
      */
     protected function bootPlugin(): void
@@ -99,12 +104,11 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
         // @themeColor('primary') - Get theme color
         Blade::directive('themeColor', function ($expression) {
             // Validate expression to only allow specific color keys
-            $allowed = ['primary', 'secondary'];
             $key = trim($expression, "'\"");
             
             return "<?php 
                 \$key = " . var_export($key, true) . ";
-                \$allowed = ['primary', 'secondary'];
+                \$allowed = " . var_export(self::ALLOWED_COLOR_KEYS, true) . ";
                 if (in_array(\$key, \$allowed)) {
                     echo config('theme.config.' . \$key . '_color', '#000');
                 } else {
@@ -129,8 +133,8 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
      */
     protected function generateCustomCss(): string
     {
-        $primaryColor = $this->getConfig('primary_color', '#007bff');
-        $secondaryColor = $this->getConfig('secondary_color', '#6c757d');
+        $primaryColor = $this->validateAndSanitizeColor($this->getConfig('primary_color', '#007bff'));
+        $secondaryColor = $this->validateAndSanitizeColor($this->getConfig('secondary_color', '#6c757d'));
 
         return "
             :root {
@@ -169,6 +173,28 @@ class ThemeCustomizerServiceProvider extends BasePluginServiceProvider
                 padding: 1rem;
             }
         ";
+    }
+
+    /**
+     * Validate and sanitize CSS color value to prevent injection
+     */
+    protected function validateAndSanitizeColor(string $color): string
+    {
+        // Remove any potentially dangerous characters
+        $color = trim($color);
+        
+        // Validate hex color format (#RGB or #RRGGBB)
+        if (preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $color)) {
+            return $color;
+        }
+        
+        // Validate rgb/rgba format
+        if (preg_match('/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/', $color)) {
+            return $color;
+        }
+        
+        // If invalid, return safe default
+        return '#000000';
     }
 
     /**
