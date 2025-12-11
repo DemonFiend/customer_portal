@@ -171,6 +171,21 @@
                     </div>
                 @endif
 
+                @if (session('restart'))
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-sync-alt fa-spin"></i> Server Restarting...
+                        </h5>
+                        <p class="mb-0">{{ session('restart') }}</p>
+                        <hr>
+                        <p class="mb-0">
+                            <small>
+                                <i class="fas fa-clock"></i> Estimated time: 1-2 minutes
+                            </small>
+                        </p>
+                    </div>
+                @endif
+
                 @if ($errors->any())
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         @foreach ($errors->all() as $error)
@@ -179,6 +194,49 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
+
+                <!-- SCXP-BetterPortal Core Functions -->
+                <div class="card shadow-sm mb-4" style="border-left: 4px solid #667eea;">
+                    <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <h5 class="mb-0">
+                            <i class="fas fa-rocket"></i> SCXP-BetterPortal Core Functions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="p-3 border rounded h-100">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-puzzle-piece text-primary"></i> Plugin Creator
+                                    </h6>
+                                    <p class="text-muted small mb-3">
+                                        Create new plugins through an intuitive UI interface with automatic scaffolding
+                                    </p>
+                                    <a href="{{ route('theme.admin.plugin-creator') }}" class="btn btn-primary w-100">
+                                        <i class="fas fa-magic"></i> Create Plugin
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded h-100">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-sync-alt text-warning"></i> Server Restart
+                                    </h6>
+                                    <p class="text-muted small mb-3">
+                                        Restart the portal server (Docker container) for applying updates
+                                    </p>
+                                    <form method="POST" action="{{ route('theme.admin.restart-server') }}" 
+                                          onsubmit="return confirm('Are you sure you want to restart the server? This will temporarily interrupt service.');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-warning w-100">
+                                            <i class="fas fa-power-off"></i> Restart Server
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Dark Mode Settings Card -->
                 <div class="card shadow-sm mb-4">

@@ -110,4 +110,91 @@ class ThemeAdminController extends Controller
         }
         return [];
     }
+
+    /**
+     * SCXP-BetterPortal: Show plugin creator form
+     */
+    public function showPluginCreator(Request $request): View|RedirectResponse
+    {
+        if ($request->session()->get('settings_authenticated') !== 1) {
+            return redirect('/admin/auth');
+        }
+
+        return view('theme-customizer::admin.plugin-creator');
+    }
+
+    /**
+     * SCXP-BetterPortal: Create a new plugin
+     */
+    public function createPlugin(Request $request): RedirectResponse
+    {
+        if ($request->session()->get('settings_authenticated') !== 1) {
+            return redirect('/admin/auth');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'restart_after' => 'nullable|boolean',
+        ]);
+
+        try {
+            $name = $request->input('name');
+            $author = $request->input('author');
+            $description = $request->input('description', 'A custom plugin for the customer portal');
+            $restartAfter = $request->input('restart_after', false);
+
+            // Generate plugin using artisan command
+            $pluginName = str_replace(' ', '', ucwords($name));
+            
+            $command = sprintf(
+                'cd %s && php artisan make:plugin "%s" --author="%s" --description="%s" 2>&1',
+                base_path(),
+                addslashes($pluginName),
+                addslashes($author),
+                addslashes($description)
+            );
+
+            $output = shell_exec($command);
+
+            // Run composer dump-autoload
+            $autoloadCommand = sprintf('cd %s && composer dump-autoload 2>&1', base_path());
+            $autoloadOutput = shell_exec($autoloadCommand);
+
+            if ($restartAfter) {
+                return redirect('/admin')->with('success', 'Plugin created successfully! Server will restart shortly. Please refresh your page in 1-2 minutes.');
+            }
+
+            return redirect('/admin')->with('success', 'Plugin created successfully! Plugin: ' . $pluginName);
+        } catch (\Exception $e) {
+            return redirect('/admin')->withErrors('Failed to create plugin: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * SCXP-BetterPortal: Restart the server
+     */
+    public function restartServer(Request $request): RedirectResponse
+    {
+        if ($request->session()->get('settings_authenticated') !== 1) {
+            return redirect('/admin/auth');
+        }
+
+        try {
+            // Restart docker container
+            $command = 'docker-compose restart app 2>&1';
+            $output = shell_exec($command);
+
+            // Alternative: restart all containers
+            if (empty($output) || strpos($output, 'error') !== false) {
+                $command = 'docker-compose restart 2>&1';
+                shell_exec($command);
+            }
+
+            return redirect('/admin')->with('restart', 'Server restart initiated! Please refresh this page in 1-2 minutes.');
+        } catch (\Exception $e) {
+            return redirect('/admin')->withErrors('Failed to restart server: ' . $e->getMessage());
+        }
+    }
 }
